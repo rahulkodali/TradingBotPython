@@ -1,6 +1,6 @@
 import os
 import asyncio
-from manager.positionManager import PositionManager
+from managers.positionManager import PositionManager
 from streamers.streamingData import EMAEngine
 
 if __name__ == "__main__":

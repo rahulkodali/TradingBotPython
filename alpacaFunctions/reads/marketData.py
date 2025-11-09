@@ -10,7 +10,7 @@ class MarketDataFetcher:
     def __init__(self, headers):
         self.headers = headers
 
-    def fetch_bars(self, symbol: str, timeframe: str = "1Day", limit: int = 500):
+    def fetchBars(self, symbol: str, timeframe: str = "1Day", limit: int = 500):
         end = datetime.now(UTC)
         start = end - timedelta(days=5)
         params = {
@@ -20,7 +20,7 @@ class MarketDataFetcher:
             "end": end.isoformat(),
             "limit": limit,
             "adjustment": "raw",
-            "feed": "iex" ##change to sip after getting paid
+            "feed": "iex" ##change to sip after getting paid tier
         }
 
         response = requests.get(URL, headers=self.headers, params=params)

@@ -5,7 +5,8 @@ from datetime import timezone
 from typing import Dict
 
 from models.stockHolding import StockHolding
-from managers.getters.marketData import MarketDataFetcher
+from alpacaFunctions.reads.marketData import MarketDataFetcher
+from alpacaFunctions.updates.tradeExecutor import TradeExecutor, OrderType
 # from dotenv import load_dotenv
 
 # load_dotenv()
@@ -16,7 +17,8 @@ UTC = timezone.utc
 HEADERS = {
     "APCA-API-KEY-ID": API_KEY,
     "APCA-API-SECRET-KEY": SECRET_API_KEY,
-    "accept": "application/json"
+    "accept": "application/json",
+    "content-type": "application/json"
 }
 
 BASE_BAR_URL = "https://data.alpaca.markets/v2/stocks/bars"
@@ -26,6 +28,7 @@ class PositionManager:
     def __init__(self):
         self.positions: Dict[str, StockHolding] = {}
         self.fetcher = MarketDataFetcher(HEADERS)
+        self.executor = TradeExecutor(HEADERS)
 
     def initialize(self):
         response = requests.get(POSITIONS_URL, headers=HEADERS)
@@ -35,7 +38,7 @@ class PositionManager:
         for position in values:
             symbol = position['symbol']
             qty = float(position['qty'])
-            df = self.fetcher.fetch_bars(symbol, "1Day", 100)
+            df = self.fetcher.fetchBars(symbol, "1Day", 100)
             if not df.empty:
                 self.positions[symbol] = StockHolding(symbol, qty, df)
 

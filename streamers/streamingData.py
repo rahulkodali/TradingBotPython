@@ -2,6 +2,8 @@ import asyncio
 import websockets
 import json
 import os
+from backend.alpacaFunctions.updates.tradeExecutor import OrderType
+from backend.models.stockHolding import Position
 
 API_KEY = os.getenv("API_KEY")
 SECRET_API_KEY = os.getenv("SECRET_API_KEY")
@@ -11,7 +13,7 @@ class EMAEngine:
     def __init__(self, position_manager):
         self.position_manager = position_manager
 
-    def update_ema(self, prev_ema, price, span):
+    def updateEma(self, prev_ema, price, span):
         alpha = 2 / (span + 1)
         return (price * alpha) + (prev_ema * (1 - alpha))
 
@@ -32,6 +34,7 @@ class EMAEngine:
             }))
             print(await ws.recv())  #auth confirmation
 
+            ##testing
             while True:
                 try:
                     msg = await ws.recv()
@@ -59,10 +62,13 @@ class EMAEngine:
             #         pos["ema50"] = new_ema50
 
             #         # Check for cross
-            #         if prev_ema21 < prev_ema50 and new_ema21 > new_ema50:
+            #         if pos.status == Position.HOLDING and new_ema21 > new_ema50:
             #             print(f"Golden Cross for {symbol}")
-            #         elif prev_ema21 > prev_ema50 and new_ema21 < new_ema50:
+            #             self.position_manager.executor.createOrder(symbol, pos.qty, OrderType.BUY)
+            #             pos.status = Position.SOLD
+            #         elif pos.status == Position.SOLD and new_ema21 < new_ema50:
             #             print(f"Death Cross for {symbol}")
-
+            #             self.position_manager.executor.createOrder(symbol, pos.qty, OrderType.SELL)
+            #             pos.status = Position.HOLDING
 
 
