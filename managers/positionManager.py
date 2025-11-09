@@ -6,7 +6,7 @@ from typing import Dict
 
 from models.stockHolding import StockHolding
 from alpacaFunctions.reads.marketData import MarketDataFetcher
-from alpacaFunctions.updates.tradeExecutor import TradeExecutor, OrderType
+from alpacaFunctions.updates.tradeExecutor import TradeExecutor
 # from dotenv import load_dotenv
 
 # load_dotenv()
