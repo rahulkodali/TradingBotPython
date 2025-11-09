@@ -2,20 +2,49 @@ import asyncio
 import websockets
 import json
 import os
+
 from backend.alpacaFunctions.updates.tradeExecutor import OrderType
 from backend.models.stockHolding import Position
+from models import stockHolding
+from managers.positionManager import PositionManager
+from concurrent.futures import ThreadPoolExecutor
+from threading import Lock
+from collections import defaultdict
 
+symbolLocks = defaultdict(Lock)
+threadExecutor = ThreadPoolExecutor(max_workers=20)
 API_KEY = os.getenv("API_KEY")
 SECRET_API_KEY = os.getenv("SECRET_API_KEY")
 URL = "wss://stream.data.alpaca.markets/v2/test" ##testing endpoint
 
 class EMAEngine:
-    def __init__(self, position_manager):
-        self.position_manager = position_manager
+    def __init__(self, positionManager: PositionManager):
+        self.positionManager = positionManager
+        self.symbolLocks = defaultdict(Lock)
+        self.threadExecutor = ThreadPoolExecutor(max_workers=20)
 
     def updateEma(self, prev_ema, price, span):
         alpha = 2 / (span + 1)
         return (price * alpha) + (prev_ema * (1 - alpha))
+    
+    def handleBarUpdates(self, symbol: str, pos: stockHolding, price):
+        with self.symbolLocks[symbol]:
+            prevEma21 = pos["ema21"]
+            prevEma50 = pos["ema50"]
+            ema21 = self.updateEma(prevEma21, price, 21)
+            ema50 = self.updateEma(prevEma50, price, 50)
+            pos["ema21"] = ema21
+            pos["ema50"] = ema50
+
+            # Check for cross
+            if pos.status == Position.SOLD and ema21 > ema50:
+                print(f"Golden Cross for {symbol}")
+                self.positionManager.executor.createOrder(symbol, pos.qty, OrderType.BUY)
+                pos.status = Position.SOLD
+            elif pos.status == Position.HOLDING and ema21 < ema50:
+                print(f"Death Cross for {symbol}")
+                self.positionManager.executor.createOrder(symbol, pos.qty, OrderType.SELL)
+                pos.status = Position.HOLDING
 
     async def run(self):
         async with websockets.connect(URL) as ws:
@@ -35,40 +64,26 @@ class EMAEngine:
             print(await ws.recv())  #auth confirmation
 
             ##testing
-            while True:
-                try:
-                    msg = await ws.recv()
-                    data = json.loads(msg)
-                    print("Live message:", data)
-                except websockets.ConnectionClosed:
-                    print("WebSocket closed")
-                    break 
-
             # while True:
-            #     msg = await ws.recv()
-            #     data = json.loads(msg)[0]
-            #     if data["T"] == "b":
-            #         symbol = data["S"]
-            #         price = data["c"]
-            #         pos = self.position_manager.positions[symbol]
-                    
-            #         prev_ema21 = pos["ema21"]
-            #         prev_ema50 = pos["ema50"]
-            #         new_ema21 = self.update_ema(prev_ema21, price, 21)
-            #         new_ema50 = self.update_ema(prev_ema50, price, 50)
+            #     try:
+            #         msg = await ws.recv()
+            #         data = json.loads(msg)
+            #         print("Live message:", data)
+            #     except websockets.ConnectionClosed:
+            #         print("WebSocket closed")
+            #         break 
 
-            #         # Update stored EMAs
-            #         pos["ema21"] = new_ema21
-            #         pos["ema50"] = new_ema50
+            while True:
+                msg = await ws.recv()
+                data = json.loads(msg)[0]
+                if data["T"] == "b":
+                    symbol = data["S"]
+                    price = data["c"]
+                    pos = self.positionManager.positions[symbol]
 
-            #         # Check for cross
-            #         if pos.status == Position.HOLDING and new_ema21 > new_ema50:
-            #             print(f"Golden Cross for {symbol}")
-            #             self.position_manager.executor.createOrder(symbol, pos.qty, OrderType.BUY)
-            #             pos.status = Position.SOLD
-            #         elif pos.status == Position.SOLD and new_ema21 < new_ema50:
-            #             print(f"Death Cross for {symbol}")
-            #             self.position_manager.executor.createOrder(symbol, pos.qty, OrderType.SELL)
-            #             pos.status = Position.HOLDING
+                    # Update stored EMAs
+                    self.threadExecutor.submit(self.handleBarUpdates, symbol, pos, price)
+
+
 
 
