@@ -25,7 +25,7 @@ This is an early-stage prototype for a swing trading bot I'm testing out. Built 
 ## 📈 Strategy
 
 This is just a super basic strategy I'm experimenting with (because of the market's volatility right now). 
-The idea is to get the basic infrastructure of the project set sp then I can tune my strategy accordingly if I want.
+The idea is to get the basic infrastructure of the project setup so then I can tune my strategy accordingly if I want.
 
 Right now, this prototype implements a **trend-based swing trading strategy**.
 
