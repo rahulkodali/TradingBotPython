@@ -23,6 +23,12 @@ def handleBarUpdates(symbol: str, price: float):
                 ema21 = updateEma(prevEma21, price, 21)
                 ema50 = updateEma(prevEma50, price, 50)
 
+                r.hset(redisKey, mapping={
+                    "ema21": ema21,
+                    "ema50": ema50
+                })
+                print(f"{symbol}'s new EMA21: {ema21}")
+                print(f"{symbol}'s new EMA21: {ema50}")
                 # Check for cross
                 if data["status"] == "SOLD" and ema21 > ema50:
                     print(f"Golden Cross for {symbol}")
