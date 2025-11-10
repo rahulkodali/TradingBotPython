@@ -1,17 +1,38 @@
-import os
-import asyncio
-from managers.positionManager import PositionManager
-from streamers.streamingData import EMAEngine
+import asyncio, redis, time, threading
+from threading import Thread
+from streamingServices.consumers.processBars import consumeStream
+from streamingServices.producers.streamBars import streamBars
+from managers.initializer import initialize
+# from datetime import datetime, timezone
+
+
+
+def main():
+    print("[Init] Initializing positions...")
+    initialize()  # this loads positions from Alpaca and writes to Redis
+
+    print("[Stream] Starting consumers for each symbol...")
+    r = redis.Redis(host="localhost", port=6379, decode_responses=True)
+    symbols = [key.split(":")[1] for key in r.keys("position:*")]
+
+    for symbol in symbols:
+        t = Thread(target=consumeStream, args=(symbol,))
+        t.daemon = True
+        t.start()
+
+
+    ##testing - redis-cli flushall before
+    # time.sleep(1)
+
+    # print("[Test] Publishing fake bars to test consumers...")
+    # now = datetime.now(timezone.utc).isoformat()
+    # r.xadd("bar_stream:AAPL", {"symbol": "AAPL", "price": "5000", "timestamp": now})
+    # r.xadd("bar_stream:AMD", {"symbol": "AMD", "price": "5000", "timestamp": now})
+        
+    # threading.Event().wait()
+        
+    print("[Stream] Starting WebSocket stream...")
+    asyncio.run(streamBars())
 
 if __name__ == "__main__":
-    # from dotenv import load_dotenv - will set up .env file later
-    # load_dotenv()
-
-    api_key = os.getenv("API_KEY")
-    secret_key = os.getenv("SECRET_API_KEY")
-
-    pm = PositionManager()
-    pm.initialize()
-
-    engine = EMAEngine(pm)
-    asyncio.run(engine.run())
+    main()
