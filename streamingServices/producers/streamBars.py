@@ -5,7 +5,7 @@ from datetime import timezone, datetime
 
 API_KEY = os.getenv("API_KEY")
 SECRET_API_KEY = os.getenv("SECRET_API_KEY")
-URL = "wss://stream.data.alpaca.markets/v2/test" ##testing endpoint
+URL = "wss://stream.data.alpaca.markets/v2/iex" ##testing endpoint
 UTC = timezone.utc
 r = redis.Redis(host="localhost", port=6379, decode_responses=True)
 
@@ -18,15 +18,15 @@ async def streamBars():
         }))
         print(await ws.recv())  #connect response
 
-        symbols = [key.split(":")[1] for key in r.keys("position:*")]
-
+        symbols = list([key.split(":")[1] for key in r.keys("position:*")])
+        print(symbols)
         await ws.send(json.dumps({
             "action": "subscribe",
-            "bars": ["FAKEPACA"] ##change to symbols
+            "bars": symbols ##change to symbols
         }))
         print(await ws.recv())  #auth confirmation
 
-        ##testing
+        #testing
         # while True:
         #     try:
         #         msg = await ws.recv()

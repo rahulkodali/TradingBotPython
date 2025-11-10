@@ -16,7 +16,7 @@ def fetchBars(headers, symbol: str, timeframe: str = "1Day", limit: int = 500):
         "end": end.isoformat(),
         "limit": limit,
         "adjustment": "raw",
-        "feed": "iex" ##change to sip after getting paid tier
+        "feed": "sip" ##change to sip after getting paid tier
     }
 
     response = requests.get(URL, headers=headers, params=params)
