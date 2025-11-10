@@ -5,14 +5,15 @@ from streamingServices.producers.streamBars import streamBars
 from managers.initializer import initialize
 # from datetime import datetime, timezone
 
-
+r = redis.Redis(host="localhost", port=6379, decode_responses=True)
 
 def main():
     print("[Init] Initializing positions...")
-    initialize()  # this loads positions from Alpaca and writes to Redis
+    
+    if len(r.keys("position:*")) == 0:
+        initialize()  # this loads positions from Alpaca and writes to Redis
 
     print("[Stream] Starting consumers for each symbol...")
-    r = redis.Redis(host="localhost", port=6379, decode_responses=True)
     symbols = [key.split(":")[1] for key in r.keys("position:*")]
 
     for symbol in symbols:
