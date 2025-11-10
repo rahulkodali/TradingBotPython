@@ -5,7 +5,7 @@ from datetime import timezone, datetime
 
 API_KEY = os.getenv("API_KEY")
 SECRET_API_KEY = os.getenv("SECRET_API_KEY")
-URL = "wss://stream.data.alpaca.markets/v2/iex" ##testing endpoint
+URL = "wss://stream.data.alpaca.markets/v2/sip" ##testing endpoint
 UTC = timezone.utc
 r = redis.Redis(host="localhost", port=6379, decode_responses=True)
 
