@@ -66,7 +66,7 @@ def initialize():
         qty = float(pos.get("qty", 0))
         status = pos.get("status", "HOLDING")
 
-        df = fetchBars(HEADERS, symbol, "1Min", 1000)
+        df = fetchBars(HEADERS, symbol, "30Min", 1000)
         if df.empty:
             print(f"[Init] Skipping {symbol} — no data")
             continue

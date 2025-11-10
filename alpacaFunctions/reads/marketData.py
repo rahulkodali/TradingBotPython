@@ -6,7 +6,7 @@ from datetime import datetime, timedelta, timezone
 UTC = timezone.utc
 URL = "https://data.alpaca.markets/v2/stocks/bars"
 
-def fetchBars(headers, symbol: str, timeframe: str = "1Min", limit: int = 1000):
+def fetchBars(headers, symbol: str, timeframe: str = "1Day", limit: int = 1000):
     end = datetime.now(UTC)
     start = end - timedelta(days=5)
     params = {

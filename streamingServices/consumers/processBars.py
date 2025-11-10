@@ -28,7 +28,7 @@ def handleBarUpdates(symbol: str, price: float):
                     "ema50": ema50
                 })
                 print(f"{symbol}'s new EMA21: {ema21}")
-                print(f"{symbol}'s new EMA21: {ema50}")
+                print(f"{symbol}'s new EMA50: {ema50}")
                 # Check for cross
                 if data["status"] == "SOLD" and ema21 > ema50:
                     print(f"Golden Cross for {symbol}")
