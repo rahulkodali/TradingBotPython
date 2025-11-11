@@ -12,6 +12,8 @@ This is an early-stage prototype for a swing trading bot I'm testing out. Built 
 
 ## 🔧 Current Stack
 
+This bot leverages Alpaca’s Market Data API, real-time WebSocket streams, and Redis Streams for inter-process communication. The system uses multithreaded consumers to process bar updates for each stock symbol in parallel, and implements distributed coordination via Redis locks to safely update state and execute trades, to ultimately enable real-time trend detection and execution with minimal latency.
+
 - **Language**: Python 3.11+
 - **Market Data**: [Alpaca Market Data API](https://alpaca.markets/)
 - **Streaming**: WebSocket + Redis Streams
