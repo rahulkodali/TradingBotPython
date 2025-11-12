@@ -47,7 +47,11 @@ def initialize():
 
     else:
         print("[Init] Redis contains previous state — restoring symbols...")
+        response = requests.get(POSITIONS_URL, headers=HEADERS)
+        response.raise_for_status()
+        alpacaPositions = response.json()
 
+        checkStatus = [pos["symbol"] for pos in alpacaPositions]
         # Redis already has stored positions, so restore from Redis keys
         symbols = [key.split(":")[1] for key in r.keys("position:*")]
 
@@ -64,7 +68,7 @@ def initialize():
     for pos in positions:
         symbol = pos["symbol"]
         qty = float(pos.get("qty", 0))
-        status = pos.get("status", "HOLDING")
+        status = "HOLDING" if symbol in checkStatus else "SOLD"
 
         df = fetchBars(HEADERS, symbol, "1Min", 5000)
         if df.empty:
@@ -79,6 +83,7 @@ def initialize():
                 "status": status,
                 "ema21": float(stock.ema21),
                 "ema50": float(stock.ema50),
+                "status": status
             }
         )
 
