@@ -6,8 +6,8 @@ from datetime import datetime, timedelta, timezone
 UTC = timezone.utc
 URL = "https://data.alpaca.markets/v2/stocks/bars"
 
-def fetchBars(headers, symbol: str, timeframe: str = "1Day", limit: int = 1000):
-    end = datetime.now(UTC)
+def fetchBars(headers, symbol: str, timeframe: str = "1Day", limit: int = 1000, fixedEnd: datetime = None):
+    end = fixedEnd or datetime.now(UTC)
     start = end - timedelta(days=5)
     params = {
         "symbols": symbol,
@@ -28,4 +28,5 @@ def fetchBars(headers, symbol: str, timeframe: str = "1Day", limit: int = 1000):
         return pd.DataFrame(columns=["c"])
     df["t"] = pd.to_datetime(df["t"])
     df.set_index("t", inplace=True)
+    print(df)
     return df

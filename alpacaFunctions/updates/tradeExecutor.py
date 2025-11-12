@@ -20,7 +20,10 @@ def createOrder(symbol: str, qty: int, orderType: OrderType):
     }
 
     response = requests.post(URL, headers=HEADERS, json=params)
-    response.raise_for_status()
+    if response.status_code != 200:
+        print(f"[Order Failed] {response.status_code} - {response.text}")
+        response.raise_for_status()
+
     data = response.json()
     print(f"[Order Placed] {data['side'].upper()} {data['qty']} {data['symbol']} | Status: {data['status']} | ID: {data['id']}")
     return data

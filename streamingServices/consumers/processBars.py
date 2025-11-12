@@ -3,6 +3,7 @@ from alpacaFunctions.updates.tradeExecutor import OrderType, createOrder
 import redis
 from managers.initializer import HEADERS
 from alpacaFunctions.reads.marketData import fetchBars
+from datetime import datetime, timezone
 
 r = redis.Redis(host="localhost", port=6379, decode_responses=True)
 
@@ -31,9 +32,13 @@ def handleBarUpdates(symbol: str, price: float, timestamp: str):
             ema21 = updateEma(prevEma21, price, 21)
             ema50 = updateEma(prevEma50, price, 50)
 
-            df = fetchBars(HEADERS, symbol, "1Min", 5000)
-            pandasEma21 = df["c"].ewm(21, adjust=False).mean().iloc[-1]
-            pandasEma50 = df["c"].ewm(50, adjust=False).mean().iloc[-1]
+            frozenTime = datetime.now(timezone.utc)
+
+
+            df = fetchBars(HEADERS, symbol, "1Min", 5000, frozenTime)
+
+            pandasEma21 = df["c"].ewm(span=21, adjust=False).mean().iloc[-1]
+            pandasEma50 = df["c"].ewm(span=50, adjust=False).mean().iloc[-1]
 
             r.hset(redisKey, mapping={
                 "ema21": float(pandasEma21),
@@ -47,7 +52,7 @@ def handleBarUpdates(symbol: str, price: float, timestamp: str):
 
             ema21 = pandasEma21
             ema50 = pandasEma50
-            
+
             if data["status"] == "SOLD" and ema21 > ema50:
                 print(f"Golden Cross for {symbol}")
                 createOrder(symbol, float(data["qty"]), OrderType.BUY)
