@@ -28,5 +28,5 @@ def fetchBars(headers, symbol: str, timeframe: str = "1Day", limit: int = 1000, 
         return pd.DataFrame(columns=["c"])
     df["t"] = pd.to_datetime(df["t"])
     df.set_index("t", inplace=True)
-    print(df)
+    # print(df)
     return df
