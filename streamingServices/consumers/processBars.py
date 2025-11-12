@@ -41,12 +41,12 @@ def handleBarUpdates(symbol: str, price: float, timestamp: str):
             if data["status"] == "SOLD" and ema21 > ema50:
                 print(f"Golden Cross for {symbol}")
                 createOrder(symbol, float(data["qty"]), OrderType.BUY)
-                r.hset(redisKey, {"status": "HOLDING"})
+                r.hset(redisKey, mapping={"status": "HOLDING"})
 
             elif data["status"] == "HOLDING" and ema21 < ema50:
                 print(f"Death Cross for {symbol}")
                 createOrder(symbol, float(data["qty"]), OrderType.SELL)
-                r.hset(redisKey, {"status": "SOLD"})
+                r.hset(redisKey, mapping={"status": "SOLD"})
 
         finally:
             lock.release()
