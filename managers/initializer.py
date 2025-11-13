@@ -17,7 +17,6 @@ HEADERS = {
     "content-type": "application/json"
 }
 
-BASE_BAR_URL = "https://data.alpaca.markets/v2/stocks/bars"
 POSITIONS_URL = "https://paper-api.alpaca.markets/v2/positions"
 
 r = redis.Redis(host="localhost", port=6379, decode_responses=True)
@@ -71,6 +70,7 @@ def initialize():
         status = "HOLDING" if symbol in checkStatus else "SOLD"
 
         df = fetchBars(HEADERS, symbol, "1Min", 5000)
+        
         if df.empty:
             print(f"[Init] Skipping {symbol} — no data")
             continue

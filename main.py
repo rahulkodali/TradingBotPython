@@ -19,17 +19,6 @@ def main():
         t = Thread(target=consumeStream, args=(symbol,))
         t.daemon = True
         t.start()
-
-
-    # ##testing - redis-cli flushall before
-    # # time.sleep(1)
-
-    # # print("[Test] Publishing fake bars to test consumers...")
-    # # now = datetime.now(timezone.utc).isoformat()
-    # # r.xadd("bar_stream:AAPL", {"symbol": "AAPL", "price": "5000", "timestamp": now})
-    # # r.xadd("bar_stream:AMD", {"symbol": "AMD", "price": "5000", "timestamp": now})
-        
-    # # threading.Event().wait()
         
     print("[Stream] Starting WebSocket stream...")
     asyncio.run(streamBars())
