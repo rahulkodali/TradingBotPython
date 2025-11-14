@@ -55,13 +55,21 @@ def handleBarUpdates(symbol: str, price: float, timestamp: str):
 
             if data["status"] == "SOLD" and ema21 > ema50:
                 print(f"Golden Cross for {symbol}")
-                createOrder(symbol, float(data["qty"]), OrderType.BUY)
-                r.hset(redisKey, mapping={"status": "HOLDING"})
+                try:
+                    createOrder(symbol, float(data["qty"]), OrderType.BUY)
+                    r.hset(redisKey, mapping={"status": "HOLDING"})
+                except Exception as e:
+                    print(f"[ERROR] failed to execute order for {symbol}: {e}")
+
 
             elif data["status"] == "HOLDING" and ema21 < ema50:
                 print(f"Death Cross for {symbol}")
-                createOrder(symbol, float(data["qty"]), OrderType.SELL)
-                r.hset(redisKey, mapping={"status": "SOLD"})
+                try:
+                    createOrder(symbol, float(data["qty"]), OrderType.SELL)
+                    r.hset(redisKey, mapping={"status": "SOLD"})
+                except Exception as e:
+                    print(f"[ERROR] failed to execute order for {symbol}: {e}")
+
 
         finally:
             lock.release()
