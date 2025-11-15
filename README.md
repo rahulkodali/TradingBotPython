@@ -5,7 +5,7 @@ This is an early-stage prototype for a swing trading bot I'm testing out. Built 
 - Fetch historical bar data
 - Store current portfolio positions and EMAs in Redis
 - Stream real-time bar data into Redis Streams
-- Calculate 21-day and 50-day EMAs (for now, strategy is subject to change)
+- Calculate 21 and 50-bar EMAs (for now, strategy is subject to change)
 - Monitor for golden/death cross patterns (for now, strategy is subject to change)
 - Make real-time trading decisions based on trends
 - Distribute processing across threads using stream consumers
@@ -33,7 +33,7 @@ Right now, this prototype implements a **trend-based swing trading strategy**.
 
 A high level overview of this is:
 
-- Monitor EMAs (21 and 50 day)
+- Monitor EMAs (21 and 50 bar)
 - If a **golden cross** (EMA21 > EMA50) occurs, **buy**
 - If a **death cross** (EMA21 < EMA50) occurs, **sell**
 
