@@ -46,6 +46,8 @@ async def streamBars():
                         "price": float(data["c"]),
                         "timestamp": datetime.now(UTC).isoformat()
                     }
+                    ##note: integrate some sort of model to predct?\
+                    ##problem: strategy is lagging
                     r.xadd(f"bar_stream:{bar['symbol']}", bar)
                     print(f"Published: {bar}")
             except Exception as e:
